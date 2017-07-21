@@ -5,15 +5,17 @@ const gulp = require('gulp');
 const babel = require('gulp-babel');
 // Require gulp-sass
 const sass = require('gulp-sass');
+// Require gulp-sequence
+const sequence = require('gulp-sequence');
 
 // Create a SASS task
 
-gulp.task('_styles', function() {
+gulp.task('_styles', () => {
   return gulp.src('./src/app.scss')
     .pipe(sass({
         outputStyle: 'compressed'
     }).on('error', sass.logError))
-    .pipe(gulp.dest('../dist/'))
+    .pipe(gulp.dest('dist'));
 });
 
 
@@ -29,15 +31,15 @@ gulp.task('_es6', () => {
 		}))
 		// We then pipe that into gulp.dest to set a final destination
 		// In this case a build folder
-		.pipe(gulp.dest('../dist/'));
+		.pipe(gulp.dest('dist'));
 });
+
+//Create a watch task
+gulp.task('_watch', () => {
+          gulp.watch('./src/app.js', ['_es6']),
+          gulp.watch('./src/app.scss', ['_styles'])
+});
+
 // Create a default gulp task, this lets us type gulp into the terminal
-// The ['es6'] tells gulp what task or tasks to run right away.
-gulp.task('default', ['_es6'], ['_styles'], () => {
-	// Tell gulp to watch for file changes on src/app.js
-	// run the es6 task when it changes!
-	gulp.watch('src/app.js',['_es6'])
-  // Tell gulp to watch for file changes on src/app.scss
-  // run the scss task when it changes!
-  gulp.watch('src/app.scss',['_styles'])
-});
+
+gulp.task('default', sequence('_styles','_es6','_watch'));
